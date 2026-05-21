@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_title">20sp</dimen>
+    <dimen name="text_body">16sp</dimen>
+    <dimen name="text_label">13sp</dimen>
+    <dimen name="text_address">36sp</dimen>
+    <dimen name="text_quantity">24sp</dimen>
+    <dimen name="text_scan_field">28sp</dimen>
+    <dimen name="button_height">56dp</dimen>
+    <dimen name="list_item_height">64dp</dimen>
+    <dimen name="touch_min">48dp</dimen>
+    <dimen name="icon_home">48dp</dimen>
+    <dimen name="padding_screen">16dp</dimen>
+    <dimen name="padding_item">12dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="context_block_height">40dp</dimen>
+</resources>

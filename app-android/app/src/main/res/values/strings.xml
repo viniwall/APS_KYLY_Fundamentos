@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KollectaOps</string>
+
+    <!-- Auth -->
+    <string name="title_login">ACESSAR COLETOR</string>
+    <string name="hint_scan_supervisor">Bipe o crachá do SUPERVISOR</string>
+    <string name="hint_scan_operator">Bipe o crachá do OPERADOR</string>
+    <string name="step_supervisor">1. Bipe o crachá do SUPERVISOR</string>
+    <string name="step_operator">2. Bipe o crachá do OPERADOR</string>
+    <string name="link_config_server">Configurar servidor</string>
+    <string name="msg_welcome">Bem-vindo, %1$s</string>
+
+    <!-- Home -->
+    <string name="title_home">Menu</string>
+    <string name="module_picking">PICKING</string>
+    <string name="module_inventory">INVENTÁRIO</string>
+    <string name="module_consult">CONSULTAR</string>
+    <string name="module_pending">PENDÊNCIAS</string>
+    <string name="module_sync">SINCRO</string>
+    <string name="module_alerts">ALERTAS</string>
+    <string name="status_online">ONLINE</string>
+    <string name="status_offline">OFFLINE</string>
+    <string name="menu_logout">Sair</string>
+    <string name="menu_diagnostic">Diagnóstico</string>
+    <string name="menu_about">Sobre</string>
+
+    <!-- Picking -->
+    <string name="title_open_box">ABRIR CAIXA</string>
+    <string name="hint_scan_papeleta">Bipe a papeleta da caixa</string>
+    <string name="title_collect">COLETA</string>
+    <string name="label_ref">REF:</string>
+    <string name="label_cor">COR:</string>
+    <string name="label_tam">TAM:</string>
+    <string name="label_quantity">QUANTIDADE:</string>
+    <string name="label_last_reads">Últimas leituras:</string>
+    <string name="btn_skip_sku">PULAR SKU</string>
+    <string name="btn_see_positions">VER POSIÇÕES</string>
+    <string name="btn_save_partial">SALVAR</string>
+    <string name="btn_back_to_collect">VOLTAR À COLETA</string>
+    <string name="title_other_positions">OUTRAS POSIÇÕES</string>
+    <string name="msg_sku_complete">SKU COMPLETA →</string>
+    <string name="msg_box_finalized">CAIXA FINALIZADA</string>
+    <string name="msg_partial_box">CAIXA COM PICKING PARCIAL</string>
+    <string name="progress_format">PROGRESSO %1$d/%2$d</string>
+    <string name="box_header_format">CAIXA %1$s</string>
+
+    <!-- Errors -->
+    <string name="error_piece_not_belongs">SKU não pertence à caixa</string>
+    <string name="error_piece_already_scanned">Peça já bipada</string>
+    <string name="error_papeleta_not_found">Papeleta não encontrada</string>
+    <string name="error_inactive_user">Usuário inativo</string>
+    <string name="error_supervisor_profile">Crachá não tem perfil de supervisor</string>
+    <string name="error_generic">Erro. Tente novamente.</string>
+
+    <!-- Sync -->
+    <string name="title_sync">SINCRONIZAÇÃO</string>
+    <string name="btn_send_collects">Enviar coletas (%1$d pendentes)</string>
+    <string name="btn_download_updates">Baixar atualizações</string>
+    <string name="btn_sync_all">Sincronizar tudo</string>
+
+    <!-- Inventory -->
+    <string name="title_inventory_list">INVENTÁRIOS</string>
+    <string name="title_collect_inventory">COLETA — INVENTÁRIO</string>
+    <string name="title_asset_form">CADASTRAR BEM</string>
+    <string name="label_code_patrimony">Código Patrimônio</string>
+    <string name="label_description">Descrição</string>
+    <string name="label_brand">Marca</string>
+    <string name="label_model">Modelo</string>
+    <string name="label_serial">Serial</string>
+    <string name="label_situation">Situação</string>
+    <string name="label_location">Localização</string>
+    <string name="label_observation">Observação</string>
+    <string name="btn_take_photo">Tirar foto</string>
+    <string name="btn_save">SALVAR</string>
+    <string name="btn_finalize_location">Finalizar localização</string>
+    <string name="counter_format">Lidos %1$d / Esperados %2$d</string>
+
+    <!-- Diagnostic -->
+    <string name="title_diagnostic">DIAGNÓSTICO</string>
+    <string name="label_app_version">Versão do App</string>
+    <string name="label_server_ip">IP do Servidor</string>
+    <string name="label_last_sync">Último Sync</string>
+    <string name="label_pending_queue">Fila Pendente</string>
+    <string name="label_device_serial">Serial do Coletor</string>
+    <string name="btn_share_logs">Compartilhar Logs</string>
+
+    <!-- Navigation drawer -->
+    <string name="nav_open">Abrir menu</string>
+    <string name="nav_close">Fechar menu</string>
+    <string name="context_info_format">%1$s · %2$s</string>
+
+    <!-- Dialogs — Open Box -->
+    <string name="dialog_partial_title">Caixa com picking parcial</string>
+    <string name="dialog_partial_message">Caixa %1$s tem %2$d item(s) pendentes e %3$d em falta do turno anterior. Deseja continuar?</string>
+    <string name="dialog_continue">Continuar</string>
+    <string name="dialog_finished_title">Caixa já finalizada</string>
+    <string name="dialog_finished_message">A caixa %1$s já foi finalizada. Nenhuma ação necessária.</string>
+    <string name="dialog_skip_title">Item em falta</string>
+    <string name="dialog_skip_message">Retirar item em falta?</string>
+    <string name="dialog_save_partial_title">Salvar coleta parcial</string>
+    <string name="dialog_save_partial_message">Salvar e continuar depois?</string>
+
+    <!-- Common -->
+    <string name="btn_ok">OK</string>
+    <string name="btn_yes">Sim</string>
+    <string name="btn_no">Não</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_confirm">Confirmar</string>
+    <string name="btn_back">Voltar</string>
+</resources>
