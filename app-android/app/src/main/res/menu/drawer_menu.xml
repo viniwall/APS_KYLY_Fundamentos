@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_logout" android:title="Sair" android:icon="@android:drawable/ic_lock_power_off" />
+    <item android:id="@+id/nav_diagnostic" android:title="Diagnóstico" android:icon="@android:drawable/ic_menu_info_details" />
+    <item android:id="@+id/nav_about" android:title="Sobre" android:icon="@android:drawable/ic_dialog_info" />
+</menu>

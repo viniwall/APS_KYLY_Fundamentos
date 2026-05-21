@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- Datalogic scanner intent permission -->
+    <uses-permission android:name="com.datalogic.decode.permission.DECODE" />
+
+    <application
+        android:name=".KollectaOpsApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="false"
+        android:theme="@style/Theme.KollectaOps">
+
+        <!-- Splash -->
+        <activity
+            android:name=".presentation.common.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.KollectaOps">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Login -->
+        <activity
+            android:name=".presentation.login.LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/Theme.KollectaOps.Login" />
+
+        <!-- Home -->
+        <activity
+            android:name=".presentation.home.HomeActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <!-- Picking -->
+        <activity
+            android:name=".presentation.picking.OpenBoxActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity
+            android:name=".presentation.picking.CollectActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
+
+        <activity
+            android:name=".presentation.picking.OtherPositionsActivity"
+            android:exported="false" />
+
+        <!-- Inventory -->
+        <activity
+            android:name=".presentation.inventory.InventoryListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.inventory.CollectInventoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <activity
+            android:name=".presentation.inventory.AssetFormActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Sync & Diagnostic -->
+        <activity
+            android:name=".presentation.sync.SyncActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.common.DiagnosticActivity"
+            android:exported="false" />
+
+        <!-- Scanner broadcast receiver — Datalogic -->
+        <receiver
+            android:name=".domain.service.ScannerReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.datalogic.decode.action.DECODE_ACTION" />
+                <action android:name="com.symbol.datawedge.api.RESULT_ACTION" />
+                <action android:name="com.honeywell.intent.action.SCANNER_RESULT" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Disable default WorkManager initializer — using HiltWorkerFactory via Configuration.Provider -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge"
+            xmlns:tools="http://schemas.android.com/tools">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
+    </application>
+</manifest>

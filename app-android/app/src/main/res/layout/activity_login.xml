@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="32dp">
+
+    <!-- Logo / Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KollectaOps"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="32dp" />
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_login"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="48dp"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Step 1: Supervisor -->
+    <LinearLayout
+        android:id="@+id/layoutSupervisor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/step_supervisor"
+            android:textSize="16sp"
+            android:textColor="#CCFFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etSupervisorCode"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@null"
+            android:hint="Aguardando leitura..."
+            android:textColorHint="#99FFFFFF"
+            android:textColor="@color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:inputType="text"
+            android:importantForAutofill="no"
+            android:paddingBottom="8dp"
+            android:fontFamily="monospace" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#66FFFFFF" />
+
+    </LinearLayout>
+
+    <!-- Step 2: Operador (hidden until supervisor is scanned) -->
+    <LinearLayout
+        android:id="@+id/layoutOperador"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/step_operator"
+            android:textSize="16sp"
+            android:textColor="#CCFFFFFF"
+            android:layout_marginBottom="12dp" />
+
+        <EditText
+            android:id="@+id/etOperadorCode"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@null"
+            android:hint="Aguardando leitura..."
+            android:textColorHint="#99FFFFFF"
+            android:textColor="@color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:inputType="text"
+            android:importantForAutofill="no"
+            android:paddingBottom="8dp"
+            android:fontFamily="monospace" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#66FFFFFF" />
+
+    </LinearLayout>
+
+    <!-- Loading indicator -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        android:indeterminateTint="@color/white" />
+
+    <!-- Error message -->
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#FFCDD2"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        android:gravity="center" />
+
+    <!-- Spacer -->
+    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+    <!-- Config link -->
+    <TextView
+        android:id="@+id/tvConfigServer"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="@string/link_config_server"
+        android:textSize="12sp"
+        android:textColor="#80FFFFFF"
+        android:layout_marginBottom="16dp"
+        android:background="?attr/selectableItemBackground" />
+
+</LinearLayout>
