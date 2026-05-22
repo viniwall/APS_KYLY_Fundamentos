@@ -229,11 +229,11 @@ public class PickingService {
             }
         }
 
-        return new EventoPickingDto.SyncResponse() {{
-            setProcessados(processados);
-            setErros(erros);
-            setMensagem(processados + " eventos processados, " + erros + " erros");
-        }};
+        EventoPickingDto.SyncResponse resp = new EventoPickingDto.SyncResponse();
+        resp.setProcessados(processados);
+        resp.setErros(erros);
+        resp.setMensagem(processados + " eventos processados, " + erros + " erros");
+        return resp;
     }
 
     private CaixaDetalheDto toCaixaDetalheDto(Caixa c) {
@@ -248,7 +248,21 @@ public class PickingService {
             .totalCaixasPedido(c.getTotalCaixasPedido())
             .abertaEm(c.getAbertaEm())
             .finalizadaEm(c.getFinalizadaEm())
-            .itens(c.getItens() != null ? c.getItens().stream().map(this::toItemDto).collect(Collectors.toList()) : List.of())
+            .itens(c.getItens() != null ? c.getItens().stream().map(this::toCaixaDetalheItemDto).collect(Collectors.toList()) : List.of())
+            .build();
+    }
+
+    private CaixaDetalheDto.ItemDto toCaixaDetalheItemDto(ItemCaixa i) {
+        return CaixaDetalheDto.ItemDto.builder()
+            .id(i.getId())
+            .skuReferencia(i.getSku().getReferencia())
+            .skuCor(i.getSku().getCor())
+            .skuTamanho(i.getSku().getTamanho())
+            .enderecoCodigo(i.getEnderecoSugerido() != null ? i.getEnderecoSugerido().getCodigo() : null)
+            .qtdeSolicitada(i.getQtdeSolicitada())
+            .qtdeColetada(i.getQtdeColetada())
+            .status(i.getStatus().name())
+            .ordemPicking(i.getOrdemPicking())
             .build();
     }
 
