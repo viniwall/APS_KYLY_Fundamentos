@@ -5,8 +5,8 @@ import { useAuth } from '../hooks/useAuth'
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
+  const [supervisor, setSupervisor] = useState('')
+  const [operador, setOperador] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -15,10 +15,10 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      await login(email, senha)
+      await login(supervisor, operador)
       navigate('/dashboard')
     } catch {
-      setError('Credenciais inválidas. Verifique e tente novamente.')
+      setError('Credenciais inválidas. Verifique os códigos e tente novamente.')
     } finally {
       setLoading(false)
     }
@@ -34,25 +34,25 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm text-text-secondary mb-1">Código / E-mail</label>
+            <label className="block text-sm text-text-secondary mb-1">Código do Crachá — Supervisor</label>
             <input
               type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={supervisor}
+              onChange={(e) => setSupervisor(e.target.value)}
               className="w-full h-12 px-3 border border-divider text-sm focus:outline-none focus:border-primary"
-              placeholder="admin@kollectaops.com.br"
+              placeholder="Ex: ADMIN01"
               autoFocus
             />
           </div>
 
           <div>
-            <label className="block text-sm text-text-secondary mb-1">Senha</label>
+            <label className="block text-sm text-text-secondary mb-1">Código do Crachá — Operador</label>
             <input
-              type="password"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              type="text"
+              value={operador}
+              onChange={(e) => setOperador(e.target.value)}
               className="w-full h-12 px-3 border border-divider text-sm focus:outline-none focus:border-primary"
-              placeholder="••••••••"
+              placeholder="Ex: OP001"
             />
           </div>
 
@@ -68,10 +68,6 @@ export default function Login() {
             {loading ? 'Entrando...' : 'ENTRAR'}
           </button>
         </form>
-
-        <p className="text-xs text-text-secondary mt-6 text-center">
-          Homologação: ADMIN01 / Kolecta@2024
-        </p>
       </div>
     </div>
   )

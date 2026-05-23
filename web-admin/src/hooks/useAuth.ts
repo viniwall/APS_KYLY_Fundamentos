@@ -17,10 +17,10 @@ export function useAuth() {
   const token = localStorage.getItem('token')
   const isAuthenticated = !!token && !!user
 
-  const login = async (email: string, senha: string) => {
+  const login = async (codigoCrachaSupervisor: string, codigoCrachaOperador: string) => {
     const response = await apiClient.post('/v1/auth/login', {
-      codigoCrachaSupervisor: email,
-      codigoCrachaOperador: email,
+      codigoCrachaSupervisor,
+      codigoCrachaOperador,
       coletorSerial: 'WEB-ADMIN',
     })
     const { token: newToken, usuario } = response.data
