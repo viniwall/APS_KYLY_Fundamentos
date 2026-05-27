@@ -1,0 +1,21 @@
+# Build outputs
+app-android/.gradle/
+app-android/.idea/
+app-android/app/build/
+app-android/build/
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Node
+web-admin/node_modules/
+
+# Local config
+app-android/local.properties
+web-admin/.env.local
+backend/src/main/resources/application-local.yml
+
+# Logs
+logs/
+
+# OS
+.DS_Store

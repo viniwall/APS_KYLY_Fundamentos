@@ -106,6 +106,7 @@
     <string name="btn_yes">Sim</string>
     <string name="btn_no">Não</string>
     <string name="btn_cancel">Cancelar</string>
+    <string name="dialog_cancel">Cancelar</string>
     <string name="btn_confirm">Confirmar</string>
     <string name="btn_back">Voltar</string>
 </resources>

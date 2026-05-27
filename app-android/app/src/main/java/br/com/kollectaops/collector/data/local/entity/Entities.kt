@@ -39,10 +39,10 @@ data class ItemCaixaLocal(
 @Entity(tableName = "evento_picking_local")
 data class EventoPickingLocal(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    @ColumnInfo(name = "sessao_id") val sessaoId: Long?,
+    @ColumnInfo(name = "sessao_id") val sessaoId: Long? = null,
     @ColumnInfo(name = "caixa_id") val caixaId: Long,
-    @ColumnInfo(name = "item_caixa_id") val itemCaixaId: Long?,
-    @ColumnInfo(name = "peca_codigo") val pecaCodigo: String?,
+    @ColumnInfo(name = "item_caixa_id") val itemCaixaId: Long? = null,
+    @ColumnInfo(name = "peca_codigo") val pecaCodigo: String? = null,
     val tipo: String,
     val mensagem: String?,
     @ColumnInfo(name = "ocorrido_em") val ocorridoEm: String,

@@ -59,6 +59,15 @@ export interface Sku {
   ativo: boolean
 }
 
+export interface EnderecoEstoque {
+  id: number
+  codigo: string
+  andarRua: string
+  secao: string
+  posicaoNivel: string
+  ativo: boolean
+}
+
 export interface Bem {
   id: number
   codigoPatrimonio: string
