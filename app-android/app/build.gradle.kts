@@ -6,6 +6,14 @@ plugins {
     kotlin("kapt")
 }
 
+val localIp: String by lazy {
+    try {
+        val proc = ProcessBuilder("sh", "-c", "ip addr show | grep 'inet ' | grep -v '127.0.0.1' | awk '{print \$2}' | cut -d/ -f1 | head -1")
+            .redirectErrorStream(true).start()
+        proc.inputStream.bufferedReader().readLine()?.trim() ?: "localhost"
+    } catch (e: Exception) { "localhost" }
+}
+
 android {
     namespace = "br.com.kollectaops.collector"
     compileSdk = 34
@@ -27,7 +35,7 @@ android {
         }
         debug {
             isDebuggable = true
-            buildConfigField("String", "BASE_URL", "\"http://192.168.6.19:8080/\"")
+            buildConfigField("String", "BASE_URL", "\"http://$localIp:8080/\"")
         }
     }
 
