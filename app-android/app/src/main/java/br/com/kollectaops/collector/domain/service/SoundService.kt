@@ -14,7 +14,9 @@ import javax.inject.Singleton
 @Singleton
 class SoundService @Inject constructor(@ApplicationContext private val context: Context) {
 
-    private val toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+    private val toneGenerator: ToneGenerator? by lazy {
+        try { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80) } catch (e: RuntimeException) { null }
+    }
 
     private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -25,27 +27,31 @@ class SoundService @Inject constructor(@ApplicationContext private val context: 
     }
 
     fun beepSuccess() {
-        toneGenerator.startTone(ToneGenerator.TONE_DTMF_8, 200)
+        toneGenerator?.startTone(ToneGenerator.TONE_DTMF_8, 200)
         vibrate(50)
     }
 
     fun beepSuccessSkuComplete() {
-        toneGenerator.startTone(ToneGenerator.TONE_DTMF_8, 150)
-        Thread.sleep(180)
-        toneGenerator.startTone(ToneGenerator.TONE_DTMF_8, 150)
+        Thread {
+            toneGenerator?.startTone(ToneGenerator.TONE_DTMF_8, 150)
+            Thread.sleep(180)
+            toneGenerator?.startTone(ToneGenerator.TONE_DTMF_8, 150)
+        }.start()
         vibrate(50)
     }
 
     fun beepError() {
-        toneGenerator.startTone(ToneGenerator.TONE_CDMA_SOFT_ERROR_LITE, 2000)
+        toneGenerator?.startTone(ToneGenerator.TONE_CDMA_SOFT_ERROR_LITE, 2000)
         vibrate(300)
     }
 
     fun beepBoxFinished() {
-        repeat(3) {
-            toneGenerator.startTone(ToneGenerator.TONE_DTMF_9, 100)
-            Thread.sleep(150)
-        }
+        Thread {
+            repeat(3) {
+                toneGenerator?.startTone(ToneGenerator.TONE_DTMF_9, 100)
+                Thread.sleep(150)
+            }
+        }.start()
         vibrate(100)
     }
 

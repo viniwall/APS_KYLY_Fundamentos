@@ -1,0 +1,403 @@
+================================================================================
+  KOLLECTAOPS — ESTRUTURA DO BANCO DE DADOS
+  Banco: u193844330_picking_aps  |  Host: 45.132.157.7  |  2026-05-28
+================================================================================
+
+
+================================================================================
+  TABELA: bem
+  Descrição: Patrimônio / ativo físico rastreável da empresa
+================================================================================
+  Campo                | Tipo                                              | Null | Chave      | Padrão               | Extra
+  ---------------------+---------------------------------------------------+------+------------+----------------------+-------------------------
+  id                   | bigint(20)                                        | NÃO  | PK         | —                    | auto_increment
+  codigo_patrimonio     | varchar(100)                                      | NÃO  | UNIQUE     | —                    |
+  descricao            | varchar(300)                                      | SIM  |            | NULL                 |
+  marca                | varchar(100)                                      | SIM  |            | NULL                 |
+  modelo               | varchar(100)                                      | SIM  |            | NULL                 |
+  serial               | varchar(100)                                      | SIM  |            | NULL                 |
+  situacao             | enum('ATIVO','EM_MANUTENCAO','BAIXADO',           | NÃO  |            | ATIVO                |
+                       |      'NAO_LOCALIZADO')                            |      |            |                      |
+  localizacao_atual_id | bigint(20)                                        | SIM  | FK         | NULL                 |
+  foto_url             | varchar(500)                                      | SIM  |            | NULL                 |
+  observacao           | text                                              | SIM  |            | NULL                 |
+  atualizado_em        | datetime                                          | NÃO  |            | current_timestamp()  | on update current_timestamp()
+  atualizado_por_id    | bigint(20)                                        | SIM  | FK         | NULL                 |
+
+  FK: localizacao_atual_id  → localizacao_patrimonial(id)
+  FK: atualizado_por_id     → usuario(id)
+
+
+================================================================================
+  TABELA: caixa
+  Descrição: Caixa de picking vinculada a um pedido
+================================================================================
+  Campo              | Tipo                                                         | Null | Chave  | Padrão    | Extra
+  -------------------+--------------------------------------------------------------+------+--------+-----------+---------------
+  id                 | bigint(20)                                                    | NÃO  | PK     | —         | auto_increment
+  codigo_papeleta    | varchar(50)                                                   | NÃO  | UNIQUE | —         |
+  numero_op          | varchar(50)                                                   | SIM  |        | NULL      |
+  pedido_id          | bigint(20)                                                    | SIM  | FK     | NULL      |
+  tipo_caixa         | varchar(50)                                                   | SIM  |        | NULL      |
+  peso_bruto         | decimal(8,3)                                                  | SIM  |        | NULL      |
+  cor_tarja          | enum('PADRAO','EXPORTACAO_AZUL','TAG_VERDE','TAG_ROSA',       | NÃO  |        | PADRAO    |
+                     |      'MULTI_AMARELO','VERMELHA')                              |      |        |           |
+  sequencia          | int(11)                                                       | SIM  |        | NULL      |
+  total_caixas_pedido| int(11)                                                       | SIM  |        | NULL      |
+  status             | enum('AGUARDANDO','EM_PICKING','PARCIAL',                     | NÃO  |        | AGUARDANDO|
+                     |      'FINALIZADA','CANCELADA')                                |      |        |           |
+  aberta_em          | datetime                                                      | SIM  |        | NULL      |
+  finalizada_em      | datetime                                                      | SIM  |        | NULL      |
+
+  FK: pedido_id → pedido(id)
+
+
+================================================================================
+  TABELA: endereco_estoque
+  Descrição: Endereço físico de uma posição no estoque (rua/seção/nível)
+================================================================================
+  Campo          | Tipo        | Null | Chave  | Padrão | Extra
+  ---------------+-------------+------+--------+--------+---------------
+  id             | bigint(20)  | NÃO  | PK     | —      | auto_increment
+  codigo         | varchar(30) | NÃO  | UNIQUE | —      |
+  andar_rua      | varchar(10) | SIM  |        | NULL   |
+  secao          | varchar(10) | SIM  |        | NULL   |
+  posicao_nivel  | varchar(10) | SIM  |        | NULL   |
+  ativo          | tinyint(1)  | NÃO  |        | 1      |
+
+  (Sem chaves estrangeiras)
+
+
+================================================================================
+  TABELA: estoque
+  Descrição: Saldo de um SKU em um endereço de estoque (chave composta)
+================================================================================
+  Campo         | Tipo       | Null | Chave | Padrão              | Extra
+  --------------+------------+------+-------+---------------------+-------------------------------
+  sku_id        | bigint(20) | NÃO  | PK/FK | —                   |
+  endereco_id   | bigint(20) | NÃO  | PK/FK | —                   |
+  quantidade    | int(11)    | NÃO  |       | 0                   |
+  atualizado_em | datetime   | NÃO  |       | current_timestamp() | on update current_timestamp()
+
+  PK composta: (sku_id, endereco_id)
+  FK: sku_id      → sku(id)
+  FK: endereco_id → endereco_estoque(id)
+
+
+================================================================================
+  TABELA: evento_picking
+  Descrição: Log de cada ação do operador durante o picking de uma caixa
+================================================================================
+  Campo         | Tipo                                                                     | Null | Chave | Padrão              | Extra
+  --------------+--------------------------------------------------------------------------+------+-------+---------------------+---------------
+  id            | bigint(20)                                                               | NÃO  | PK    | —                   | auto_increment
+  sessao_id     | bigint(20)                                                               | SIM  | FK    | NULL                |
+  caixa_id      | bigint(20)                                                               | NÃO  | FK    | —                   |
+  item_caixa_id | bigint(20)                                                               | SIM  | FK    | NULL                |
+  peca_id       | bigint(20)                                                               | SIM  | FK    | NULL                |
+  tipo          | enum('ABRIR_CAIXA','BIPAR_OK','BIPAR_OK_SKU_COMPLETA',                  | NÃO  |       | —                   |
+                |      'BIPAR_ERRO_NAO_PERTENCE','BIPAR_ERRO_SEM_SALDO',                  |      |       |                     |
+                |      'PULAR_ITEM','CONSULTAR_OUTRAS_POSICOES','SALVAR_PARCIAL',          |      |       |                     |
+                |      'FINALIZAR_CAIXA','REABRIR_CAIXA')                                 |      |       |                     |
+  mensagem      | varchar(500)                                                             | SIM  |       | NULL                |
+  ocorrido_em   | datetime                                                                 | NÃO  |       | current_timestamp() |
+  sincronizado  | tinyint(1)                                                               | NÃO  | IDX   | 0                   |
+
+  FK: sessao_id     → sessao_coletor(id)
+  FK: caixa_id      → caixa(id)
+  FK: item_caixa_id → item_caixa(id)
+  FK: peca_id       → peca(id)
+
+
+================================================================================
+  TABELA: filial
+  Descrição: Filial / unidade da empresa
+================================================================================
+  Campo    | Tipo         | Null | Chave  | Padrão | Extra
+  ---------+--------------+------+--------+--------+---------------
+  id       | bigint(20)   | NÃO  | PK     | —      | auto_increment
+  codigo   | varchar(20)  | NÃO  | UNIQUE | —      |
+  nome     | varchar(150) | NÃO  |        | —      |
+  endereco | text         | SIM  |        | NULL   |
+  ativo    | tinyint(1)   | NÃO  |        | 1      |
+
+  (Sem chaves estrangeiras)
+
+
+================================================================================
+  TABELA: inventario
+  Descrição: Cabeçalho de um inventário patrimonial de uma filial
+================================================================================
+  Campo         | Tipo                              | Null | Chave | Padrão              | Extra
+  --------------+-----------------------------------+------+-------+---------------------+---------------
+  id            | bigint(20)                        | NÃO  | PK    | —                   | auto_increment
+  filial_id     | bigint(20)                        | NÃO  | FK    | —                   |
+  descricao     | varchar(200)                      | SIM  |       | NULL                |
+  iniciado_em   | datetime                          | NÃO  |       | current_timestamp() |
+  finalizado_em | datetime                          | SIM  |       | NULL                |
+  status        | enum('ABERTO','EM_ANDAMENTO',     | NÃO  |       | ABERTO              |
+                |      'FECHADO')                   |      |       |                     |
+  criado_por_id | bigint(20)                        | SIM  | FK    | NULL                |
+
+  FK: filial_id     → filial(id)
+  FK: criado_por_id → usuario(id)
+
+
+================================================================================
+  TABELA: item_caixa
+  Descrição: Item (SKU + quantidade) que deve ser separado dentro de uma caixa
+================================================================================
+  Campo               | Tipo                                               | Null | Chave | Padrão   | Extra
+  --------------------+----------------------------------------------------+------+-------+----------+---------------
+  id                  | bigint(20)                                         | NÃO  | PK    | —        | auto_increment
+  caixa_id            | bigint(20)                                         | NÃO  | FK    | —        |
+  sku_id              | bigint(20)                                         | NÃO  | FK    | —        |
+  endereco_sugerido_id| bigint(20)                                         | SIM  | FK    | NULL     |
+  qtde_solicitada     | int(11)                                            | NÃO  |       | 0        |
+  qtde_coletada       | int(11)                                            | NÃO  |       | 0        |
+  status              | enum('PENDENTE','EM_COLETA','COMPLETO',             | NÃO  |       | PENDENTE |
+                      |      'EM_FALTA','DIVERGENTE')                      |      |       |          |
+  ordem_picking       | int(11)                                            | NÃO  |       | 0        |
+
+  FK: caixa_id             → caixa(id)
+  FK: sku_id               → sku(id)
+  FK: endereco_sugerido_id → endereco_estoque(id)
+
+
+================================================================================
+  TABELA: leitura_inventario
+  Descrição: Registro de cada leitura (bipagem) feita durante um inventário
+================================================================================
+  Campo              | Tipo                                              | Null | Chave | Padrão              | Extra
+  -------------------+---------------------------------------------------+------+-------+---------------------+---------------
+  id                 | bigint(20)                                        | NÃO  | PK    | —                   | auto_increment
+  inventario_id      | bigint(20)                                        | NÃO  | FK    | —                   |
+  bem_id             | bigint(20)                                        | SIM  | FK    | NULL                |
+  localizacao_lida_id| bigint(20)                                        | SIM  | FK    | NULL                |
+  operador_id        | bigint(20)                                        | SIM  | FK    | NULL                |
+  lida_em            | datetime                                          | NÃO  |       | current_timestamp() |
+  divergencia        | enum('NENHUMA','LOCALIZACAO','SITUACAO',          | NÃO  |       | NENHUMA             |
+                     |      'NAO_CADASTRADO')                            |      |       |                     |
+
+  FK: inventario_id       → inventario(id)
+  FK: bem_id              → bem(id)
+  FK: localizacao_lida_id → localizacao_patrimonial(id)
+  FK: operador_id         → usuario(id)
+
+
+================================================================================
+  TABELA: localizacao_patrimonial
+  Descrição: Local físico onde um bem patrimonial pode estar (sala, setor etc.)
+================================================================================
+  Campo     | Tipo         | Null | Chave  | Padrão | Extra
+  ----------+--------------+------+--------+--------+---------------
+  id        | bigint(20)   | NÃO  | PK     | —      | auto_increment
+  codigo    | varchar(30)  | NÃO  | UNIQUE | —      |
+  nome      | varchar(150) | NÃO  |        | —      |
+  filial_id | bigint(20)   | SIM  | FK     | NULL   |
+  ativo     | tinyint(1)   | NÃO  |        | 1      |
+
+  FK: filial_id → filial(id)
+
+
+================================================================================
+  TABELA: peca
+  Descrição: Peça individual com código único (unidade física de um SKU)
+================================================================================
+  Campo         | Tipo                                        | Null | Chave | Padrão    | Extra
+  --------------+---------------------------------------------+------+-------+-----------+---------------
+  id            | bigint(20)                                  | NÃO  | PK    | —         | auto_increment
+  codigo_unico  | varchar(100)                                | NÃO  | UNIQUE| —         |
+  sku_id        | bigint(20)                                  | NÃO  | FK    | —         |
+  status        | enum('DISPONIVEL','BIPADA','EM_CAIXA',      | NÃO  |       | DISPONIVEL|
+                |      'DIVERGENTE')                          |      |       |           |
+  bipada_em     | datetime                                    | SIM  |       | NULL      |
+  bipada_por_id | bigint(20)                                  | SIM  | FK    | NULL      |
+  item_caixa_id | bigint(20)                                  | SIM  | FK    | NULL      |
+
+  FK: sku_id        → sku(id)
+  FK: bipada_por_id → usuario(id)
+  FK: item_caixa_id → item_caixa(id)
+
+
+================================================================================
+  TABELA: pedido
+  Descrição: Pedido de venda que gera as caixas de picking
+================================================================================
+  Campo          | Tipo                                      | Null | Chave  | Padrão              | Extra
+  ---------------+-------------------------------------------+------+--------+---------------------+---------------
+  id             | bigint(20)                                | NÃO  | PK     | —                   | auto_increment
+  numero_pedido  | varchar(50)                               | NÃO  | UNIQUE | —                   |
+  cliente_nome   | varchar(200)                              | SIM  |        | NULL                |
+  cliente_doc    | varchar(30)                               | SIM  |        | NULL                |
+  criado_em      | datetime                                  | NÃO  |        | current_timestamp() |
+  status         | enum('ABERTO','EM_PICKING','FINALIZADO',  | NÃO  |        | ABERTO              |
+                 |      'CANCELADO')                         |      |        |                     |
+
+  (Sem chaves estrangeiras)
+
+
+================================================================================
+  TABELA: sessao_coletor
+  Descrição: Sessão de trabalho de um operador no coletor, supervisionada
+================================================================================
+  Campo               | Tipo         | Null | Chave | Padrão              | Extra
+  --------------------+--------------+------+-------+---------------------+---------------
+  id                  | bigint(20)   | NÃO  | PK    | —                   | auto_increment
+  supervisor_id       | bigint(20)   | NÃO  | FK    | —                   |
+  operador_id         | bigint(20)   | NÃO  | FK    | —                   |
+  turno_id            | bigint(20)   | SIM  | FK    | NULL                |
+  coletor_serial      | varchar(100) | SIM  |       | NULL                |
+  aberta_em           | datetime     | NÃO  |       | current_timestamp() |
+  encerrada_em        | datetime     | SIM  |       | NULL                |
+  motivo_encerramento | varchar(255) | SIM  |       | NULL                |
+
+  FK: supervisor_id → usuario(id)
+  FK: operador_id   → usuario(id)
+  FK: turno_id      → turno(id)
+
+
+================================================================================
+  TABELA: sku
+  Descrição: Unidade de manutenção de estoque (referência + cor + tamanho)
+================================================================================
+  Campo       | Tipo         | Null | Chave  | Padrão | Extra
+  ------------+--------------+------+--------+--------+---------------
+  id          | bigint(20)   | NÃO  | PK     | —      | auto_increment
+  referencia  | varchar(50)  | NÃO  | IDX    | —      |
+  cor         | varchar(50)  | NÃO  |        | —      |
+  tamanho     | varchar(20)  | NÃO  |        | —      |
+  descricao   | varchar(200) | SIM  |        | NULL   |
+  codigo_ean  | varchar(30)  | SIM  | IDX    | NULL   |
+  ativo       | tinyint(1)   | NÃO  |        | 1      |
+
+  (Sem chaves estrangeiras)
+
+
+================================================================================
+  TABELA: sync_envio
+  Descrição: Fila de sincronização de dados do dispositivo Android para o servidor
+================================================================================
+  Campo          | Tipo                          | Null | Chave | Padrão              | Extra
+  ---------------+-------------------------------+------+-------+---------------------+---------------
+  id             | bigint(20)                    | NÃO  | PK    | —                   | auto_increment
+  dispositivo_id | varchar(100)                  | NÃO  | IDX   | —                   |
+  tabela         | varchar(50)                   | NÃO  |       | —                   |
+  payload_json   | mediumtext                    | NÃO  |       | —                   |
+  criado_em      | datetime                      | NÃO  |       | current_timestamp() |
+  enviado_em     | datetime                      | SIM  |       | NULL                |
+  status         | enum('PENDENTE','ENVIADO',    | NÃO  | IDX   | PENDENTE            |
+                 |      'FALHA')                 |      |       |                     |
+  tentativas     | int(11)                       | NÃO  |       | 0                   |
+  erro_msg       | text                          | SIM  |       | NULL                |
+
+  (Sem chaves estrangeiras)
+
+
+================================================================================
+  TABELA: turno
+  Descrição: Turno de trabalho (matutino, vespertino, noturno etc.)
+================================================================================
+  Campo       | Tipo        | Null | Chave  | Padrão | Extra
+  ------------+-------------+------+--------+--------+---------------
+  id          | bigint(20)  | NÃO  | PK     | —      | auto_increment
+  codigo      | varchar(20) | NÃO  | UNIQUE | —      |
+  nome        | varchar(100)| NÃO  |        | —      |
+  hora_inicio | time        | NÃO  |        | —      |
+  hora_fim    | time        | NÃO  |        | —      |
+
+  (Sem chaves estrangeiras)
+
+
+================================================================================
+  TABELA: usuario
+  Descrição: Usuário do sistema (admin, gestor, supervisor ou operador)
+================================================================================
+  Campo         | Tipo                                          | Null | Chave  | Padrão              | Extra
+  --------------+-----------------------------------------------+------+--------+---------------------+---------------
+  id            | bigint(20)                                    | NÃO  | PK     | —                   | auto_increment
+  codigo_cracha | varchar(50)                                   | NÃO  | UNIQUE | —                   |
+  nome          | varchar(150)                                  | NÃO  |        | —                   |
+  email         | varchar(200)                                  | SIM  | UNIQUE | NULL                |
+  senha_hash    | varchar(255)                                  | NÃO  |        | —                   |
+  perfil        | enum('ADMIN','GESTOR','SUPERVISOR','OPERADOR')| NÃO  |        | OPERADOR            |
+  ativo         | tinyint(1)                                    | NÃO  |        | 1                   |
+  criado_em     | datetime                                      | NÃO  |        | current_timestamp() |
+
+  (Sem chaves estrangeiras — tabela raiz)
+
+
+================================================================================
+  TABELA: usuario_filial
+  Descrição: Tabela associativa N:N entre usuário e filial
+================================================================================
+  Campo      | Tipo       | Null | Chave | Padrão | Extra
+  -----------+------------+------+-------+--------+-------
+  usuario_id | bigint(20) | NÃO  | PK/FK | —      |
+  filial_id  | bigint(20) | NÃO  | PK/FK | —      |
+
+  PK composta: (usuario_id, filial_id)
+  FK: usuario_id → usuario(id)
+  FK: filial_id  → filial(id)
+
+
+================================================================================
+  RESUMO DOS RELACIONAMENTOS (para o DER)
+================================================================================
+
+  filial ──────────────────────────┐
+    ← localizacao_patrimonial      │  (filial_id)
+    ← inventario                   │  (filial_id)
+    ← usuario_filial               │  (filial_id)
+
+  usuario ─────────────────────────┐
+    ← usuario_filial               │  (usuario_id)
+    ← sessao_coletor               │  (supervisor_id, operador_id)
+    ← peca                         │  (bipada_por_id)
+    ← inventario                   │  (criado_por_id)
+    ← leitura_inventario           │  (operador_id)
+    ← bem                          │  (atualizado_por_id)
+
+  turno ───────────────────────────┐
+    ← sessao_coletor               │  (turno_id)
+
+  pedido ──────────────────────────┐
+    ← caixa                        │  (pedido_id)
+
+  caixa ───────────────────────────┐
+    ← item_caixa                   │  (caixa_id)
+    ← evento_picking               │  (caixa_id)
+
+  sku ─────────────────────────────┐
+    ← estoque                      │  (sku_id)
+    ← item_caixa                   │  (sku_id)
+    ← peca                         │  (sku_id)
+
+  endereco_estoque ────────────────┐
+    ← estoque                      │  (endereco_id)
+    ← item_caixa                   │  (endereco_sugerido_id)
+
+  item_caixa ──────────────────────┐
+    ← peca                         │  (item_caixa_id)
+    ← evento_picking               │  (item_caixa_id)
+
+  sessao_coletor ──────────────────┐
+    ← evento_picking               │  (sessao_id)
+
+  inventario ──────────────────────┐
+    ← leitura_inventario           │  (inventario_id)
+
+  bem ─────────────────────────────┐
+    ← leitura_inventario           │  (bem_id)
+
+  localizacao_patrimonial ─────────┐
+    ← bem                          │  (localizacao_atual_id)
+    ← leitura_inventario           │  (localizacao_lida_id)
+
+  peca ────────────────────────────┐
+    ← evento_picking               │  (peca_id)
+
+================================================================================
+  Total de tabelas: 18
+  Gerado em: 2026-05-28
+================================================================================

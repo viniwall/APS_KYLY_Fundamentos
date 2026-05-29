@@ -34,7 +34,10 @@ class OpenBoxViewModel @Inject constructor(
             try {
                 val response = apiService.getCaixa(papeleta)
                 if (response.isSuccessful) {
-                    val caixa = response.body()!!
+                    val caixa = response.body() ?: run {
+                        _state.value = OpenBoxState.Error("Resposta inválida do servidor")
+                        return@launch
+                    }
                     when (caixa.status) {
                         "FINALIZADA" -> _state.value = OpenBoxState.AlreadyFinished(papeleta)
                         "PARCIAL" -> _state.value = OpenBoxState.PartialCaixa(caixa)

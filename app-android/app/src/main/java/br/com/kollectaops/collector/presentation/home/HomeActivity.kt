@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import br.com.kollectaops.collector.R
 import br.com.kollectaops.collector.databinding.ActivityHomeBinding
 import br.com.kollectaops.collector.domain.service.SessionManager
@@ -80,6 +81,7 @@ class HomeActivity : AppCompatActivity() {
             }
         )
         val adapter = HomeModuleAdapter(modules)
+        binding.rvModules.layoutManager = GridLayoutManager(this, 2)
         binding.rvModules.adapter = adapter
     }
 
