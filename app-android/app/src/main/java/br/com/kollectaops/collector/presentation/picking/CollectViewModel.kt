@@ -157,7 +157,11 @@ class CollectViewModel @Inject constructor(
     fun skipCurrentItem() {
         val item = _currentItem.value ?: return
         viewModelScope.launch {
-            apiService.pularItem(item.id)
+            try {
+                apiService.pularItem(item.id)
+            } catch (_: Exception) {
+                // Offline: registra localmente para sync posterior
+            }
             itemCaixaDao.updateColetado(item.id, item.qtdeColetada, "EM_FALTA")
             registrarEvento("PULAR_ITEM", "item ${item.id}", itemId = item.id)
             reloadItems()
