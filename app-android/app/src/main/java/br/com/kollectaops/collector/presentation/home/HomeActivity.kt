@@ -10,6 +10,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import br.com.kollectaops.collector.R
+import br.com.kollectaops.collector.data.local.dao.EventoPickingDao
 import br.com.kollectaops.collector.databinding.ActivityHomeBinding
 import br.com.kollectaops.collector.domain.service.SessionManager
 import br.com.kollectaops.collector.presentation.login.LoginActivity
@@ -23,6 +24,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
 
     @Inject lateinit var sessionManager: SessionManager
+    @Inject lateinit var eventoPickingDao: EventoPickingDao
 
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
@@ -71,6 +73,11 @@ class HomeActivity : AppCompatActivity() {
         val nome = sessionManager.getUserName()
         val filial = sessionManager.getFilialName()
         binding.tvContextInfo.text = getString(R.string.context_info_format, nome, filial)
+
+        eventoPickingDao.countPendentesLive().observe(this) { pendentes ->
+            val suffix = if (pendentes > 0) " · $pendentes pendente(s)" else ""
+            binding.tvContextInfo.text = getString(R.string.context_info_format, nome, filial) + suffix
+        }
     }
 
     private fun setupModuleGrid() {

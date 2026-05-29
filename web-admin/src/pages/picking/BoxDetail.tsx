@@ -7,6 +7,42 @@ import { Spinner } from '../../components/ui/Spinner'
 import type { Caixa } from '../../types'
 import { format } from 'date-fns'
 
+const TARJA_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  PADRAO:          { label: 'Padrão',     color: '#555555', bg: '#E0E0E0' },
+  EXPORTACAO_AZUL: { label: 'Exportação', color: '#FFFFFF', bg: '#1565C0' },
+  TAG_VERDE:       { label: 'Tag Verde',  color: '#FFFFFF', bg: '#2E7D32' },
+  TAG_ROSA:        { label: 'Tag Rosa',   color: '#FFFFFF', bg: '#C2185B' },
+  MULTI_AMARELO:   { label: 'Multi',      color: '#111111', bg: '#F9A825' },
+  VERMELHA:        { label: 'Vermelha',   color: '#FFFFFF', bg: '#C62828' },
+}
+
+function TarjaBadge({ corTarja }: { corTarja: string }) {
+  const cfg = TARJA_CONFIG[corTarja] ?? { label: corTarja, color: '#333', bg: '#DDD' }
+  return (
+    <span
+      style={{ backgroundColor: cfg.bg, color: cfg.color }}
+      className="inline-block px-2 py-0.5 text-xs font-bold rounded-sm"
+    >
+      {cfg.label}
+    </span>
+  )
+}
+
+// Formata endereço "C37.09.6B" em partes coloridas
+function EnderecoFormatado({ codigo }: { codigo: string }) {
+  const parts = codigo.split('.')
+  if (parts.length !== 3) return <span className="font-mono text-primary">{codigo}</span>
+  return (
+    <span className="font-mono font-bold text-base tracking-wide">
+      <span style={{ color: '#1B3A57' }}>{parts[0]}</span>
+      <span className="text-text-secondary">.</span>
+      <span style={{ color: '#E0A800' }}>{parts[1]}</span>
+      <span className="text-text-secondary">.</span>
+      <span style={{ color: '#2E7D32' }}>{parts[2]}</span>
+    </span>
+  )
+}
+
 export default function BoxDetail() {
   const { papeleta } = useParams<{ papeleta: string }>()
   const navigate = useNavigate()
@@ -31,9 +67,15 @@ export default function BoxDetail() {
       </button>
 
       <div className="bg-white p-4 border border-divider">
-        <div className="flex items-center gap-3 mb-3">
-          <h2 className="text-xl font-bold">{caixa.codigoPapeleta}</h2>
+        <div className="flex items-center gap-3 mb-3 flex-wrap">
+          <h2 className="text-xl font-bold font-mono">{caixa.codigoPapeleta}</h2>
           <Badge label={caixa.status} variant={statusToBadge(caixa.status)} />
+          <TarjaBadge corTarja={caixa.corTarja} />
+          {caixa.sequencia > 0 && caixa.totalCaixasPedido > 0 && (
+            <span className="text-xs text-text-secondary font-medium">
+              Caixa {caixa.sequencia} de {caixa.totalCaixasPedido}
+            </span>
+          )}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
@@ -80,7 +122,11 @@ export default function BoxDetail() {
                   <td className="px-4 py-2.5 font-mono font-bold">{item.skuReferencia}</td>
                   <td className="px-4 py-2.5">{item.skuCor}</td>
                   <td className="px-4 py-2.5">{item.skuTamanho}</td>
-                  <td className="px-4 py-2.5 font-mono text-primary">{item.enderecoCodigo || '—'}</td>
+                  <td className="px-4 py-2.5">
+                    {item.enderecoCodigo
+                      ? <EnderecoFormatado codigo={item.enderecoCodigo} />
+                      : <span className="text-text-secondary">—</span>}
+                  </td>
                   <td className="px-4 py-2.5 text-center">{item.qtdeSolicitada}</td>
                   <td className="px-4 py-2.5 text-center font-bold">{item.qtdeColetada}</td>
                   <td className="px-4 py-2.5">

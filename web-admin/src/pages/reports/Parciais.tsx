@@ -19,6 +19,25 @@ interface ParciaisData {
   size: number
 }
 
+function downloadCsv(rows: ParcialRow[], de: string, ate: string) {
+  const headers = [
+    'Papeleta', 'OP', 'Cliente', 'Abertura', 'Fechamento', 'Itens', 'Completos', 'Em Falta'
+  ]
+  const lines = rows.map(p => [
+    p.codigoPapeleta, p.numeroOp, p.clienteNome,
+    p.abertaEm, p.finalizadaEm, p.totalItens, p.itensCompletos, p.itensEmFalta
+  ].join(';'))
+
+  const csv = '﻿' + [headers.join(';'), ...lines].join('\r\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `parciais_${de}_${ate}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function Parciais() {
   const today = format(new Date(), 'yyyy-MM-dd')
   const [de, setDe] = useState(today)
@@ -49,6 +68,13 @@ export default function Parciais() {
           <input type="date" value={ate} onChange={e => { setAte(e.target.value); setPage(0) }}
             className="h-9 px-3 border border-divider text-sm focus:outline-none" />
         </div>
+        <button
+          onClick={() => data?.content.length && downloadCsv(data.content, de, ate)}
+          disabled={!data?.content.length}
+          className="ml-auto h-9 px-4 text-sm font-medium border border-primary text-primary hover:bg-primary hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Baixar CSV
+        </button>
       </div>
 
       {isLoading ? <Spinner /> : (

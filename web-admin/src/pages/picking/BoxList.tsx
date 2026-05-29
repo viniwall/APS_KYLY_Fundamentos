@@ -10,6 +10,27 @@ import { format } from 'date-fns'
 
 const STATUSES = ['', 'AGUARDANDO', 'EM_PICKING', 'PARCIAL', 'FINALIZADA', 'CANCELADA']
 
+const TARJA_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  PADRAO:          { label: 'Padrão',     color: '#555555', bg: '#E0E0E0' },
+  EXPORTACAO_AZUL: { label: 'Exportação', color: '#FFFFFF', bg: '#1565C0' },
+  TAG_VERDE:       { label: 'Tag Verde',  color: '#FFFFFF', bg: '#2E7D32' },
+  TAG_ROSA:        { label: 'Tag Rosa',   color: '#FFFFFF', bg: '#C2185B' },
+  MULTI_AMARELO:   { label: 'Multi',      color: '#111111', bg: '#F9A825' },
+  VERMELHA:        { label: 'Vermelha',   color: '#FFFFFF', bg: '#C62828' },
+}
+
+function TarjaBadge({ corTarja }: { corTarja: string }) {
+  const cfg = TARJA_CONFIG[corTarja] ?? { label: corTarja, color: '#333', bg: '#DDD' }
+  return (
+    <span
+      style={{ backgroundColor: cfg.bg, color: cfg.color }}
+      className="inline-block px-2 py-0.5 text-xs font-bold rounded-sm"
+    >
+      {cfg.label}
+    </span>
+  )
+}
+
 export default function BoxList() {
   const navigate = useNavigate()
   const [page, setPage] = useState(0)
@@ -68,6 +89,7 @@ export default function BoxList() {
                   <th className="px-4 py-2 font-medium">Papeleta</th>
                   <th className="px-4 py-2 font-medium">OP</th>
                   <th className="px-4 py-2 font-medium">Cliente</th>
+                  <th className="px-4 py-2 font-medium">Tarja</th>
                   <th className="px-4 py-2 font-medium">Status</th>
                   <th className="px-4 py-2 font-medium">Abertura</th>
                   <th className="px-4 py-2 font-medium">Finalização</th>
@@ -84,6 +106,9 @@ export default function BoxList() {
                     <td className="px-4 py-3 text-text-secondary">{caixa.numeroOp || '—'}</td>
                     <td className="px-4 py-3">{caixa.clienteNome || '—'}</td>
                     <td className="px-4 py-3">
+                      <TarjaBadge corTarja={caixa.corTarja} />
+                    </td>
+                    <td className="px-4 py-3">
                       <Badge label={caixa.status} variant={statusToBadge(caixa.status)} />
                     </td>
                     <td className="px-4 py-3 text-text-secondary">{fmtDate(caixa.abertaEm)}</td>
@@ -92,7 +117,7 @@ export default function BoxList() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-text-secondary text-sm">
+                    <td colSpan={7} className="px-4 py-8 text-center text-text-secondary text-sm">
                       Nenhuma caixa encontrada.
                     </td>
                   </tr>

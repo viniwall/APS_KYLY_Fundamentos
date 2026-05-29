@@ -22,6 +22,27 @@ interface DivergenciasData {
   size: number
 }
 
+function downloadCsv(rows: DivergenciaRow[], de: string, ate: string) {
+  const headers = [
+    'Papeleta', 'Cliente', 'Referencia', 'Descricao',
+    'Cor', 'Tamanho', 'Endereco', 'Solicitado', 'Coletado', 'Tipo', 'Registrado'
+  ]
+  const lines = rows.map(d => [
+    d.caixaPapeleta, d.clienteNome, d.skuReferencia, d.skuDescricao,
+    d.skuCor, d.skuTamanho, d.enderecoCodigo,
+    d.qtdeSolicitada, d.qtdeColetada, d.status, d.registradoEm
+  ].join(';'))
+
+  const csv = '﻿' + [headers.join(';'), ...lines].join('\r\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `divergencias_${de}_${ate}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function Divergencias() {
   const today = format(new Date(), 'yyyy-MM-dd')
   const [de, setDe] = useState(today)
@@ -60,6 +81,13 @@ export default function Divergencias() {
           onChange={e => { setQ(e.target.value); setPage(0) }}
           className="h-9 px-3 border border-divider text-sm focus:outline-none w-64"
         />
+        <button
+          onClick={() => data?.content.length && downloadCsv(data.content, de, ate)}
+          disabled={!data?.content.length}
+          className="ml-auto h-9 px-4 text-sm font-medium border border-primary text-primary hover:bg-primary hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Baixar CSV
+        </button>
       </div>
 
       {isLoading ? <Spinner /> : (

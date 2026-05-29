@@ -153,6 +153,8 @@ class OpenBoxActivity : AppCompatActivity() {
         val intent = Intent(this, CollectActivity::class.java).apply {
             putExtra(CollectActivity.EXTRA_CAIXA_ID, caixa.id)
             putExtra(CollectActivity.EXTRA_PAPELETA, caixa.codigoPapeleta)
+            putExtra(CollectActivity.EXTRA_SEQUENCIA, caixa.sequencia ?: 0)
+            putExtra(CollectActivity.EXTRA_TOTAL_CAIXAS, caixa.totalCaixasPedido ?: 0)
         }
         startActivity(intent)
         viewModel.reset()

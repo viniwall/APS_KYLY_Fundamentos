@@ -5,6 +5,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.KeyEvent
 import android.view.View
 import androidx.activity.viewModels
@@ -24,6 +26,8 @@ class CollectActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_CAIXA_ID = "caixa_id"
         const val EXTRA_PAPELETA = "papeleta"
+        const val EXTRA_SEQUENCIA = "sequencia"
+        const val EXTRA_TOTAL_CAIXAS = "total_caixas"
     }
 
     private lateinit var binding: ActivityCollectBinding
@@ -42,11 +46,13 @@ class CollectActivity : AppCompatActivity() {
 
         val caixaId = intent.getLongExtra(EXTRA_CAIXA_ID, -1)
         val papeleta = intent.getStringExtra(EXTRA_PAPELETA) ?: ""
+        val sequencia = intent.getIntExtra(EXTRA_SEQUENCIA, 0)
+        val totalCaixas = intent.getIntExtra(EXTRA_TOTAL_CAIXAS, 0)
 
         setupRecyclerView()
         setupButtons()
         setupScannerInput()
-        setupObservers()
+        setupObservers(sequencia, totalCaixas)
 
         viewModel.loadCaixa(caixaId, papeleta)
         scannerService.enableScanner()
@@ -118,18 +124,42 @@ class CollectActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupObservers() {
+    private fun formatAddress(codigo: String): SpannableString {
+        val parts = codigo.split(".")
+        if (parts.size != 3) return SpannableString(codigo)
+        val full = codigo
+        val s = SpannableString(full)
+        var cursor = 0
+        s.setSpan(ForegroundColorSpan(Color.parseColor("#1B3A57")), cursor, cursor + parts[0].length, 0)
+        cursor += parts[0].length + 1
+        s.setSpan(ForegroundColorSpan(Color.parseColor("#E0A800")), cursor, cursor + parts[1].length, 0)
+        cursor += parts[1].length + 1
+        s.setSpan(ForegroundColorSpan(Color.parseColor("#2E7D32")), cursor, cursor + parts[2].length, 0)
+        return s
+    }
+
+    private fun setupObservers(sequencia: Int, totalCaixas: Int) {
         viewModel.currentItem.observe(this) { item ->
             item ?: return@observe
             binding.tvSkuRef.text = "REF: ${item.skuReferencia}"
             binding.tvSkuCor.text = item.skuCor
             binding.tvSkuTam.text = item.skuTamanho
-            binding.tvAddress.text = item.enderecoCodigo ?: "—"
+            val endereco = item.enderecoCodigo
+            if (!endereco.isNullOrBlank()) {
+                binding.tvAddress.text = formatAddress(endereco)
+            } else {
+                binding.tvAddress.text = "—"
+            }
             binding.tvQuantity.text = "QUANTIDADE: ${item.qtdeSolicitada - item.qtdeColetada}"
         }
 
         viewModel.progress.observe(this) { (done, total) ->
-            binding.tvBoxHeader.text = "CAIXA ${viewModel.papeleta}"
+            val header = if (sequencia > 0 && totalCaixas > 0) {
+                "CAIXA ${viewModel.papeleta}  ($sequencia/$totalCaixas)"
+            } else {
+                "CAIXA ${viewModel.papeleta}"
+            }
+            binding.tvBoxHeader.text = header
             binding.tvProgress.text = "PROGRESSO $done/$total"
         }
 
