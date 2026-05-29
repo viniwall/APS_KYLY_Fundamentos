@@ -147,6 +147,11 @@ class CollectActivity : AppCompatActivity() {
                     showFeedback(getString(R.string.msg_sku_complete))
                     soundService.beepSuccessSkuComplete()
                 }
+                CollectViewModel.ScanResultType.OK_OFFLINE -> {
+                    flashScreen(Color.parseColor("#F9A825"), 300)
+                    soundService.beepSuccess()
+                    showFeedback("Aceito offline")
+                }
                 CollectViewModel.ScanResultType.ERROR -> {
                     flashScreen(Color.parseColor("#C62828"), 300)
                     soundService.beepError()
@@ -155,15 +160,27 @@ class CollectActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.boxFinalized.observe(this) { finalized ->
-            if (finalized) {
-                soundService.beepBoxFinished()
-                AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.msg_box_finalized))
-                    .setMessage("Todos os itens foram coletados.")
-                    .setCancelable(false)
-                    .setPositiveButton("OK") { _, _ -> finish() }
-                    .show()
+        viewModel.boxFinalized.observe(this) { result ->
+            result ?: return@observe
+            when (result) {
+                CollectViewModel.BoxResult.FINALIZADA -> {
+                    soundService.beepBoxFinished()
+                    AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.msg_box_finalized))
+                        .setMessage("Todos os itens foram coletados.")
+                        .setCancelable(false)
+                        .setPositiveButton("OK") { _, _ -> finish() }
+                        .show()
+                }
+                CollectViewModel.BoxResult.PARCIAL -> {
+                    soundService.beepPartialBox()
+                    AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.msg_partial_box))
+                        .setMessage("Atenção: um ou mais itens ficaram em falta por ausência de produto no estoque.")
+                        .setCancelable(false)
+                        .setPositiveButton("OK") { _, _ -> finish() }
+                        .show()
+                }
             }
         }
     }

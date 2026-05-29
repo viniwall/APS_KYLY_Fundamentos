@@ -14,6 +14,9 @@ interface CaixaDao {
 
     @Query("UPDATE caixa_local SET status = :status WHERE id = :id")
     suspend fun updateStatus(id: Long, status: String)
+
+    @Query("SELECT COUNT(*) FROM caixa_local WHERE status = 'EM_PICKING'")
+    suspend fun countEmPicking(): Int
 }
 
 @Dao
@@ -44,6 +47,9 @@ interface EventoPickingDao {
 
     @Query("SELECT COUNT(*) FROM evento_picking_local WHERE sincronizado = 0")
     fun countPendentesLive(): LiveData<Int>
+
+    @Query("SELECT COUNT(*) FROM evento_picking_local WHERE peca_codigo = :pecaCodigo AND tipo IN ('BIPAR_OK', 'BIPAR_OK_SKU_COMPLETA')")
+    suspend fun countBipesByPecaCodigo(pecaCodigo: String): Int
 }
 
 @Dao

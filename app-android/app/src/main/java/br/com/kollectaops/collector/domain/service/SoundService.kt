@@ -49,6 +49,16 @@ class SoundService @Inject constructor(@ApplicationContext private val context: 
         vibrate(100)
     }
 
+    // 2 bipes curtos + 1 tom de aviso longo — padrão distinto do beepBoxFinished
+    fun beepPartialBox() {
+        toneGenerator.startTone(ToneGenerator.TONE_DTMF_9, 100)
+        Thread.sleep(150)
+        toneGenerator.startTone(ToneGenerator.TONE_DTMF_9, 100)
+        Thread.sleep(200)
+        toneGenerator.startTone(ToneGenerator.TONE_CDMA_SOFT_ERROR_LITE, 500)
+        vibrate(200)
+    }
+
     fun vibrate(durationMs: Long) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))

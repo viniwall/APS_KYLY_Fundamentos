@@ -23,7 +23,10 @@ class CollectViewModel @Inject constructor(
     private val eventoPickingDao: EventoPickingDao
 ) : ViewModel() {
 
-    enum class ScanResultType { OK, SKU_COMPLETE, ERROR }
+    enum class ScanResultType { OK, OK_OFFLINE, SKU_COMPLETE, ERROR }
+
+    // FINALIZADA = 100% coletada; PARCIAL = algum item ficou em falta
+    enum class BoxResult { FINALIZADA, PARCIAL }
 
     data class ScanResult(val barcode: String, val type: ScanResultType, val message: String? = null)
 
@@ -47,8 +50,8 @@ class CollectViewModel @Inject constructor(
     private val _scanResult = MutableLiveData<ScanResult?>()
     val scanResult: LiveData<ScanResult?> = _scanResult
 
-    private val _boxFinalized = MutableLiveData<Boolean>(false)
-    val boxFinalized: LiveData<Boolean> = _boxFinalized
+    private val _boxFinalized = MutableLiveData<BoxResult?>(null)
+    val boxFinalized: LiveData<BoxResult?> = _boxFinalized
 
     var papeleta: String = ""
     private var caixaId: Long = -1L
@@ -97,15 +100,13 @@ class CollectViewModel @Inject constructor(
                 )
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
-                    val now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
                     when (body.resultado) {
                         "OK" -> {
                             body.itemAtualizado?.let { dto ->
                                 itemCaixaDao.updateColetado(dto.id, dto.qtdeColetada, dto.status)
                                 reloadItems()
                             }
-                            registrarEvento("BIPAR_OK", barcode)
+                            registrarEvento("BIPAR_OK", barcode, pecaCodigo = barcode, itemId = item.id)
                             _scanResult.postValue(ScanResult(barcode, ScanResultType.OK))
                         }
                         "SKU_COMPLETA" -> {
@@ -113,27 +114,43 @@ class CollectViewModel @Inject constructor(
                                 itemCaixaDao.updateColetado(dto.id, dto.qtdeColetada, dto.status)
                                 reloadItems()
                             }
-                            registrarEvento("BIPAR_OK_SKU_COMPLETA", barcode)
+                            registrarEvento("BIPAR_OK_SKU_COMPLETA", barcode, pecaCodigo = barcode, itemId = item.id)
                             _scanResult.postValue(ScanResult(barcode, ScanResultType.SKU_COMPLETE))
                             checkBoxFinalization()
                         }
                         "ERRO_NAO_PERTENCE" -> {
-                            registrarEvento("BIPAR_ERRO_NAO_PERTENCE", barcode)
+                            registrarEvento("BIPAR_ERRO_NAO_PERTENCE", barcode, pecaCodigo = barcode, itemId = item.id)
                             _scanResult.postValue(ScanResult(barcode, ScanResultType.ERROR, "SKU não pertence à caixa"))
                         }
                         "ERRO_JA_BIPADA" -> {
-                            registrarEvento("BIPAR_ERRO_SEM_SALDO", barcode)
-                            _scanResult.postValue(ScanResult(barcode, ScanResultType.ERROR, "Peça já bipada"))
+                            registrarEvento("BIPAR_ERRO_SEM_SALDO", barcode, pecaCodigo = barcode, itemId = item.id)
+                            _scanResult.postValue(ScanResult(barcode, ScanResultType.ERROR, "Peça sem saldo"))
                         }
                     }
                 } else {
                     _scanResult.postValue(ScanResult(barcode, ScanResultType.ERROR, "Erro na validação"))
                 }
             } catch (e: Exception) {
-                // Offline fallback: registra localmente
-                registrarEvento("BIPAR_OK", barcode)
-                _scanResult.postValue(ScanResult(barcode, ScanResultType.OK))
+                handleOfflineScan(barcode, item)
             }
+        }
+    }
+
+    // Quando offline: verifica duplicata localmente antes de aceitar
+    private suspend fun handleOfflineScan(barcode: String, item: ItemState) {
+        val jaRegistrada = eventoPickingDao.countBipesByPecaCodigo(barcode) > 0
+        if (jaRegistrada) {
+            _scanResult.postValue(ScanResult(barcode, ScanResultType.ERROR, "Peça sem saldo"))
+            return
+        }
+        val newQtde = item.qtdeColetada + 1
+        val newStatus = if (newQtde >= item.qtdeSolicitada) "COMPLETO" else "EM_COLETA"
+        itemCaixaDao.updateColetado(item.id, newQtde, newStatus)
+        registrarEvento("BIPAR_OK", barcode, pecaCodigo = barcode, itemId = item.id)
+        reloadItems()
+        _scanResult.postValue(ScanResult(barcode, ScanResultType.OK_OFFLINE))
+        if (newStatus == "COMPLETO") {
+            checkBoxFinalization()
         }
     }
 
@@ -142,8 +159,9 @@ class CollectViewModel @Inject constructor(
         viewModelScope.launch {
             apiService.pularItem(item.id)
             itemCaixaDao.updateColetado(item.id, item.qtdeColetada, "EM_FALTA")
-            registrarEvento("PULAR_ITEM", "item ${item.id}")
+            registrarEvento("PULAR_ITEM", "item ${item.id}", itemId = item.id)
             reloadItems()
+            checkBoxFinalization()
         }
     }
 
@@ -163,17 +181,30 @@ class CollectViewModel @Inject constructor(
     }
 
     private fun checkBoxFinalization() {
+        if (items.isEmpty()) return
         val allDone = items.all { it.status == "COMPLETO" || it.status == "EM_FALTA" }
-        if (allDone) _boxFinalized.postValue(true)
+        if (allDone) {
+            val algumEmFalta = items.any { it.status == "EM_FALTA" }
+            _boxFinalized.postValue(if (algumEmFalta) BoxResult.PARCIAL else BoxResult.FINALIZADA)
+        }
     }
 
-    private suspend fun registrarEvento(tipo: String, mensagem: String) {
-        eventoPickingDao.insert(EventoPickingLocal(
-            caixaId = caixaId,
-            tipo = tipo,
-            mensagem = mensagem,
-            ocorridoEm = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-            sincronizado = false
-        ))
+    private suspend fun registrarEvento(
+        tipo: String,
+        mensagem: String,
+        pecaCodigo: String? = null,
+        itemId: Long? = null
+    ) {
+        eventoPickingDao.insert(
+            EventoPickingLocal(
+                caixaId = caixaId,
+                itemCaixaId = itemId,
+                pecaCodigo = pecaCodigo,
+                tipo = tipo,
+                mensagem = mensagem,
+                ocorridoEm = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                sincronizado = false
+            )
+        )
     }
 }

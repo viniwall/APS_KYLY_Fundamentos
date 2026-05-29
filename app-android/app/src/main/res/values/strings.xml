@@ -47,7 +47,7 @@
 
     <!-- Errors -->
     <string name="error_piece_not_belongs">SKU não pertence à caixa</string>
-    <string name="error_piece_already_scanned">Peça já bipada</string>
+    <string name="error_piece_already_scanned">Peça sem saldo</string>
     <string name="error_papeleta_not_found">Papeleta não encontrada</string>
     <string name="error_inactive_user">Usuário inativo</string>
     <string name="error_supervisor_profile">Crachá não tem perfil de supervisor</string>

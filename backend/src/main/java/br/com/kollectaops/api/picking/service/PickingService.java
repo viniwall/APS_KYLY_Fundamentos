@@ -161,6 +161,16 @@ public class PickingService {
             .ocorridoEm(LocalDateTime.now())
             .sincronizado(true)
             .build());
+
+        // Auto-finaliza a caixa se todos os itens estão resolvidos após o pulo
+        boolean todosResolvidos = itemCaixaRepository
+            .findByCaixaIdOrdenado(item.getCaixa().getId())
+            .stream()
+            .allMatch(i -> i.getStatus() == ItemCaixa.Status.COMPLETO ||
+                           i.getStatus() == ItemCaixa.Status.EM_FALTA);
+        if (todosResolvidos) {
+            finalizarCaixaInterno(item.getCaixa());
+        }
     }
 
     @Transactional

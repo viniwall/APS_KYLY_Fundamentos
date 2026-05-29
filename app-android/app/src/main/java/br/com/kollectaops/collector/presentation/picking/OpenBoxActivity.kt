@@ -17,6 +17,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class OpenBoxActivity : AppCompatActivity() {
 
+    companion object {
+        private const val MAX_CAIXAS_CARRINHO = 2
+    }
+
     private lateinit var binding: ActivityOpenBoxBinding
     private val viewModel: OpenBoxViewModel by viewModels()
 
@@ -78,6 +82,10 @@ class OpenBoxActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     showAlreadyFinishedAlert(state.papeleta)
                 }
+                is OpenBoxState.CartLimitReached -> {
+                    binding.progressBar.visibility = View.GONE
+                    showCartLimitAlert()
+                }
                 is OpenBoxState.Error -> {
                     binding.progressBar.visibility = View.GONE
                     binding.tvError.visibility = View.VISIBLE
@@ -119,6 +127,19 @@ class OpenBoxActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(R.string.dialog_finished_title)
             .setMessage(getString(R.string.dialog_finished_message, papeleta))
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                viewModel.reset()
+                showIdle()
+                scannerService.enableScanner()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun showCartLimitAlert() {
+        AlertDialog.Builder(this)
+            .setTitle("Limite do carrinho atingido")
+            .setMessage("O carrinho já possui $MAX_CAIXAS_CARRINHO caixas abertas. Finalize ou salve uma das caixas antes de abrir outra.")
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 viewModel.reset()
                 showIdle()

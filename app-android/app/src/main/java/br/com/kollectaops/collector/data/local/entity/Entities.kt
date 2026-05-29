@@ -44,7 +44,7 @@ data class EventoPickingLocal(
     @ColumnInfo(name = "item_caixa_id") val itemCaixaId: Long? = null,
     @ColumnInfo(name = "peca_codigo") val pecaCodigo: String? = null,
     val tipo: String,
-    val mensagem: String?,
+    val mensagem: String? = null,
     @ColumnInfo(name = "ocorrido_em") val ocorridoEm: String,
     val sincronizado: Boolean = false
 )
