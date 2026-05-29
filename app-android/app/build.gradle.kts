@@ -1,9 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     kotlin("kapt")
+}
+
+// Lê local.properties (git-ignorado) para configurações de ambiente local
+val localProps = Properties().also { props ->
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use(props::load)
 }
 
 android {
@@ -27,7 +35,9 @@ android {
         }
         debug {
             isDebuggable = true
-            buildConfigField("String", "BASE_URL", "\"http://192.168.6.19:8080/\"")
+            // IP lido de local.properties (não versionado); fallback para o IP padrão do lab
+            val debugUrl = localProps.getProperty("api.debug.url", "http://192.168.6.19:8080/")
+            buildConfigField("String", "BASE_URL", "\"$debugUrl\"")
         }
     }
 
